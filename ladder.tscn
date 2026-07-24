@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://l5f8wivte3jd"]
+
+[ext_resource type="Script" uid="uid://ds5f607em221h" path="res://ladder.gd" id="1_lqhsa"]
+[ext_resource type="TileSet" uid="uid://b3ihlxp7bklco" path="res://new_tile_set.tres" id="2_efw3x"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_66ua3"]
+size = Vector2(8, 8)
+
+[node name="ladder" type="Area2D" unique_id=1339324666]
+script = ExtResource("1_lqhsa")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1439568268]
+shape = SubResource("RectangleShape2D_66ua3")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=488176739]
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 21, 0, 0, 0)
+tile_set = ExtResource("2_efw3x")

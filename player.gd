@@ -15,6 +15,7 @@ var jump_buffer_timer: float = 0.0
 var on_ladder_zone: bool = false
 var ladder_x: float = 0.0
 var ladder_top_y: float = 0.0
+var ladder_entry_y: float = 0.0
 var default_collision_mask: int = 1
 var is_climbing_off_top: bool = false
 var did_jump: bool = false
@@ -36,7 +37,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
-		return  # frozen — die() already stopped velocity and started the animation
+		return
 
 	_update_timers(delta)
 
@@ -109,6 +110,8 @@ func _process_air(delta: float) -> void:
 
 
 func _process_ladder() -> void:
+	print("state=LADDER | player.x=", global_position.x, " ladder_x=", ladder_x, " | player.y=", global_position.y, " ladder_top_y=", ladder_top_y, " entry_y=", ladder_entry_y)
+
 	if is_climbing_off_top:
 		velocity = Vector2.ZERO
 		return
@@ -119,7 +122,7 @@ func _process_ladder() -> void:
 	var climb_input := Input.get_axis("move_up", "move_down")
 	velocity.y = climb_input * climb_speed
 
-	if climb_input < 0 and global_position.y <= ladder_top_y:
+	if climb_input < 0 and global_position.y <= ladder_top_y and ladder_entry_y > ladder_top_y:
 		_start_end_climb()
 		return
 
@@ -171,7 +174,7 @@ func _update_animation() -> void:
 					sprite.play("walk")
 				else:
 					sprite.play("idle")
-
+#ignore#
 		State.LADDER:
 			sprite.speed_scale = -1.0 if velocity.y > 0 else 1.0
 			if velocity.y != 0:
@@ -184,8 +187,6 @@ func _update_animation() -> void:
 			else:
 				sprite.stop()
 				last_walk_frame = -1
-
-
 func _start_end_climb() -> void:
 	is_climbing_off_top = true
 	velocity = Vector2.ZERO
@@ -236,6 +237,7 @@ func _enter_ladder() -> void:
 	state = State.LADDER
 	velocity = Vector2.ZERO
 	collision_mask = 0
+	ladder_entry_y = global_position.y
 	_update_animation()
 
 
@@ -249,15 +251,3 @@ func set_ladder_zone(active: bool, ladder_center_x: float = 0.0, top_y: float = 
 func _on_death_zone_body_entered(body: Node2D) -> void:
 	if body.name == "Player":
 		body.die()
-
-
-func _on_ladder_1_body_entered(body: Node2D) -> void:
-	if body.name == "Player":
-		var shape: CollisionShape2D = $"../Ladder1/CollisionShape2D"
-		var top_y: float = shape.global_position.y - (shape.shape.size.y / 2.0)
-		body.set_ladder_zone(true, shape.global_position.x, top_y)
-
-
-func _on_ladder_1_body_exited(body: Node2D) -> void:
-	if body.name == "Player":
-		body.set_ladder_zone(false)
